@@ -1,0 +1,30 @@
+services:
+  torrentfs:
+    build:
+      context: .
+    volumes:
+      - ./mnt:/torrent-mount:shared # using ':sharing' is important
+      - ./torrents:/torrent-files
+    privileged: true
+    security_opt:
+      - apparmor:unconfined
+    devices:
+      - /dev/fuse
+    cap_add:
+      - SYS_ADMIN
+    environment:
+    # We using root id in container, but mountpoint will be as you write
+      - MOUNT_UID=1000 # mountpoint uid
+      - MOUNT_GID=1000 # mountpoint gid
+      - DIR_DOWNLOAD=/torrent-cache # cache dir
+      - DIR_TORRENTS_USERBIND=/torrent-files # mountpoint dir with torrent files
+      - DIR_META=/torrentfs-files # inner dir with torrent files
+      - DIR_MOUNT=/torrentfs-mount # inner dir with torrent virtual files
+      - DIR_TORRENTFS_USERBIND=/torrent-mount # mountpoint with torrent virtual files (has correct uid and gid)
+      - READAHEAD=30M # memory cache size
+
+  debian:
+    image: debian
+    volumes:
+      - ./mnt:/mnt:shared
+    entrypoint: /bin/bash -c 'sleep 3600'

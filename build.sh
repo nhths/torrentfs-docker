@@ -1,0 +1,8 @@
+#! /usr/bin/env sh
+
+TAG=20250128
+TORRENTFS_RESULT_IMAGE=${TORRENTFS_RESULT_IMAGE:-'torrentfs'}:$TAG
+TORRENTFS_VERSION=latest
+
+docker buildx build --push --load -t $TORRENTFS_RESULT_IMAGE \
+    --build-arg TORRENTFS_VERSION=$TORRENTFS_VERSION .
