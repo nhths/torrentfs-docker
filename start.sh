@@ -28,13 +28,14 @@ mkdir $DIR_DOWNLOAD $DIR_META $DIR_MOUNT $DIR_TORRENTFS_USERBIND || echo 'target
 CMD_TORRENTFS="/torrentfs -disableTrackers=false -mountDir=$DIR_MOUNT \
     -metainfoDir=$DIR_META -downloadDir=$DIR_DOWNLOAD -readaheadBytes=$READAHEAD"
 
-bindfs --map=0/$MOUNT_UID:@0/@$MOUNT_GID $DIR_MOUNT $DIR_TORRENTFS_USERBIND
+bindfs --map=$MOUNT_UID/0:@$MOUNT_GID/@0 $DIR_TORRENTS_USERBIND $DIR_META
 
 bindfs --map=0/$MOUNT_UID:@0/@$MOUNT_GID $DIR_MOUNT $DIR_TORRENTFS_USERBIND $(($CMD_TORRENTFS > /dev/null &) && sleep 2)
 
 unbinding() {
     umount $DIR_TORRENTFS_USERBIND
     kill $(ps ac | grep 'torrentfs' | awk '{print $1}') >> /dev/null
+    umount $DIR_TORRENTS_USERBIND
 }
 
 trap unbinding SIGINT SIGTERM
